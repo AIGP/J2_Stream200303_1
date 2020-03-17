@@ -2,10 +2,9 @@ package ru.gb.jtwo.ld.online.client;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
-public class ClientGUI extends JFrame implements ActionListener, Thread.UncaughtExceptionHandler {
+public class ClientGUI extends JFrame implements ActionListener, KeyListener, Thread.UncaughtExceptionHandler {
 
     private static final int WIDTH = 400;
     private static final int HEIGHT = 300;
@@ -27,6 +26,7 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
     private final JList<String> userList = new JList<>();
 
     public static void main(String[] args) {
+        //Записываем в файл сообщение: "Начало работы".
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
@@ -38,6 +38,12 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
     private ClientGUI() {
         Thread.setDefaultUncaughtExceptionHandler(this);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent event) {
+                //В логирование записываем "Конец работы" и закрываем файл
+            }
+        });
         setLocationRelativeTo(null);
         setSize(WIDTH, HEIGHT);
         setTitle("Chat client");
@@ -49,6 +55,8 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
         JScrollPane scrollUsers = new JScrollPane(userList);
         scrollUsers.setPreferredSize(new Dimension(100, 0));
         cbAlwaysOnTop.addActionListener(this);
+        btnSend.addActionListener(this);
+        tfMessage.addKeyListener(this);
 
         panelTop.add(tfIPAddress);
         panelTop.add(tfPort);
@@ -73,6 +81,14 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
         Object src = e.getSource();
         if (src == cbAlwaysOnTop) {
             setAlwaysOnTop(cbAlwaysOnTop.isSelected());
+            //Always on top теперь cbAlwaysOnTop.isSelected()
+        }
+        else if (src == btnSend) {
+            if(!tfMessage.getText().toString().isEmpty()) {
+                log.append(tfMessage.getText() + "\n");
+                //Отправлено такое-то сообщение
+            }
+            tfMessage.setText("");
         }
         else
             throw new RuntimeException("Unknown source: " + src);
@@ -86,7 +102,30 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
         msg = "Exception in thread " + t.getName() + " " +
                 e.getClass().getCanonicalName() + ": " +
                 e.getMessage() + "\n\t" + ste[0];
+        //Записываем в лог
         JOptionPane.showMessageDialog(null, msg, "Exception", JOptionPane.ERROR_MESSAGE);
         System.exit(1);
     }
+
+    @Override
+    public void keyTyped(KeyEvent keyEvent) {
+
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+            if(!tfMessage.getText().toString().isEmpty()) {
+                log.append(tfMessage.getText() + "\n");
+                //Отправлено такое-то сообщение
+            }
+            tfMessage.setText("");
+        }
+    }
+
+    @Override
+    public void keyReleased(KeyEvent keyEvent) {
+
+    }
+
 }
