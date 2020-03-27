@@ -107,16 +107,18 @@ public class ClientGUI extends JFrame implements ActionListener, Thread.Uncaught
 
     private void sendMessage() {
         String msg = tfMessage.getText();
+        String login = tfLogin.getText();
         if ("".equals(msg)) return;
         tfMessage.setText(null);
         tfMessage.grabFocus();
-        socketThread.sendMessage(msg);
+        socketThread.sendMessage(login+": "+msg); // Заметила, что под одним пользователем
+                                                        // можно зайти несколько раз
 
-        if (!"".equals(msg)) {
+        /*if (!"".equals(msg)) {
             tfMessage.setText(null);
             tfMessage.grabFocus();
             socketThread.sendMessage(msg);
-        }
+        }*/
 
 //        putLog(String.format("%s: %s", username, msg));
 //        wrtMsgToLogFile(msg, username);
